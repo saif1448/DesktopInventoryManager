@@ -1,5 +1,9 @@
 package ictgradschool.industry.final_project.inventory_management;
 
+import ictgradschool.industry.final_project.commands.FilterCommand;
+import ictgradschool.industry.final_project.commands.RemoveItemCommand;
+import ictgradschool.industry.final_project.commands.SearchCommand;
+import ictgradschool.industry.final_project.interfaces.Command;
 import ictgradschool.industry.final_project.interfaces.InventoryObserver;
 import ictgradschool.industry.final_project.utils.Utils;
 
@@ -115,7 +119,9 @@ public class InventoryTable extends JPanel implements InventoryObserver {
             int selectedRow = inventoryTable.getSelectedRow();
             if (selectedRow != -1) {
                 String id = (String) tableModel.getValueAt(selectedRow, 0);
-                inventory.removeItem(id);
+//                inventory.removeItem(id);
+                Command removeCommand = new RemoveItemCommand(inventory, id);
+                removeCommand.execute();
             }
         });
 
@@ -228,8 +234,8 @@ public class InventoryTable extends JPanel implements InventoryObserver {
             String searchCriteria = (String) criteriaComboBox.getSelectedItem();
 
             if (!searchTerm.isEmpty()) {
-                filterTable(searchTerm, searchCriteria);
-                searchDialog.dispose();
+                Command searchCommand = new SearchCommand(this, searchTerm, searchCriteria);
+                searchCommand.execute();
             } else {
                 JOptionPane.showMessageDialog(searchDialog, "Please enter a search term.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -265,18 +271,22 @@ public class InventoryTable extends JPanel implements InventoryObserver {
         allItemsButton.setSelected(true);
 
         inStockButton.addActionListener(e -> {
-            filterTableByStockQuantity("in-stock");
-            filterDialog.dispose();
-        });
-        outOfStockButton.addActionListener(e -> {
-            filterTableByStockQuantity("out-of-stock");
-            filterDialog.dispose();
-        });
-        allItemsButton.addActionListener(e -> {
-            filterTableByStockQuantity("all");
+            Command filterCommand = new FilterCommand(this, "in-stock");
+            filterCommand.execute(); // Execute the command
             filterDialog.dispose();
         });
 
+        outOfStockButton.addActionListener(e -> {
+            Command filterCommand = new FilterCommand(this, "out-of-stock");
+            filterCommand.execute(); // Execute the command
+            filterDialog.dispose();
+        });
+
+        allItemsButton.addActionListener(e -> {
+            Command filterCommand = new FilterCommand(this, "all");
+            filterCommand.execute(); // Execute the command
+            filterDialog.dispose();
+        });
         filterDialog.add(filterLabel);
         filterDialog.add(inStockButton);
         filterDialog.add(outOfStockButton);
@@ -286,7 +296,7 @@ public class InventoryTable extends JPanel implements InventoryObserver {
         filterDialog.setVisible(true);
     }
 
-    private void filterTable(String searchTerm, String searchCriteria) {
+    public void filterTable(String searchTerm, String searchCriteria) {
         try {
             RowFilter<DefaultTableModel, Object> rowFilter = RowFilter.regexFilter("(?i)" + searchTerm, getColumnIndex(searchCriteria));
             sorter.setRowFilter(rowFilter);
@@ -298,7 +308,7 @@ public class InventoryTable extends JPanel implements InventoryObserver {
         }
     }
 
-    private void filterTableByStockQuantity(String filterType) {
+    public void filterTableByStockQuantity(String filterType) {
         try {
             RowFilter<DefaultTableModel, Object> rowFilter = null;
             switch (filterType) {
