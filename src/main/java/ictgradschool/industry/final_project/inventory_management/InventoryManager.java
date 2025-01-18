@@ -15,6 +15,9 @@ public class InventoryManager extends JFrame {
     public InventoryManager(String fileStorePath) {
         this.fileStorePath = fileStorePath;
         this.inventory = new Inventory(fileStorePath); // Load inventory data
+        // Create the InventoryTable panel
+        inventoryTable = new InventoryTable(inventory);
+        inventory.addObserver(inventoryTable);
 
         // Set the title of the window
         setTitle("Inventory Manager");
@@ -39,8 +42,7 @@ public class InventoryManager extends JFrame {
         // Add the label to the top of the main panel
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
-        // Create the InventoryTable panel
-        inventoryTable = new InventoryTable(inventory);
+
         mainPanel.add(inventoryTable, BorderLayout.CENTER);
 
         // Create a panel to hold the buttons
@@ -124,9 +126,6 @@ public class InventoryManager extends JFrame {
 
                 // Save the updated inventory to the file
                 inventory.saveInventory();
-
-                // Refresh the table to show the updated data
-                inventoryTable.refresh();
 
                 // Close the dialog
                 addItemDialog.dispose();

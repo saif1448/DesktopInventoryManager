@@ -1,5 +1,6 @@
 package ictgradschool.industry.final_project.inventory_management;
 
+import ictgradschool.industry.final_project.interfaces.InventoryObserver;
 import ictgradschool.industry.final_project.utils.Utils;
 
 import javax.swing.*;
@@ -13,7 +14,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class InventoryTable extends JPanel {
+public class InventoryTable extends JPanel implements InventoryObserver {
     private Inventory inventory;
     private JTable inventoryTable;
     private JButton removeItemButton;
@@ -29,6 +30,11 @@ public class InventoryTable extends JPanel {
         initializeTable();    // Initialize table
         initializeButtons();  // Initialize buttons
         setupLayout();       // Setup the layout
+    }
+
+    @Override
+    public void update() {
+        refresh(); // Refresh the table when the inventory changes
     }
 
     private void initializeTable() {
@@ -110,7 +116,6 @@ public class InventoryTable extends JPanel {
             if (selectedRow != -1) {
                 String id = (String) tableModel.getValueAt(selectedRow, 0);
                 inventory.removeItem(id);
-                refresh();
             }
         });
 

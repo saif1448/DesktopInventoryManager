@@ -2,6 +2,7 @@ package ictgradschool.industry.final_project.inventory_management;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import ictgradschool.industry.final_project.interfaces.InventoryObserver;
 
 import javax.swing.*;
 import java.io.*;
@@ -12,6 +13,24 @@ public class Inventory {
 
     private String fileStorePath; // Path to the file store
     private List<InventoryItem> items;
+    private List<InventoryObserver> observers = new ArrayList<>();
+
+    // Add an observer
+    public void addObserver(InventoryObserver observer) {
+        observers.add(observer);
+    }
+
+    // Remove an observer
+    public void removeObserver(InventoryObserver observer) {
+        observers.remove(observer);
+    }
+
+    // Notify all observers
+    private void notifyObservers() {
+        for (InventoryObserver observer : observers) {
+            observer.update();
+        }
+    }
 
     public Inventory(String fileStorePath) {
         this.fileStorePath = fileStorePath;
@@ -65,6 +84,7 @@ public class Inventory {
     public void addItem(InventoryItem newItem) {
         items.add(newItem);
         saveInventory();
+        notifyObservers();
     }
 
     public InventoryItem getItemById(String id) {
@@ -93,6 +113,7 @@ public class Inventory {
         // Remove the item with the specified ID from the list
         items.removeIf(item -> item.getId().equals(id));
         saveInventory(); // Save the updated inventory to the file
+        notifyObservers();
     }
 
     public void updateItem(String id, InventoryItem updatedItem) {
